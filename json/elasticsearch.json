@@ -100,14 +100,16 @@ PUT _template/analyzer-test-index-template
   }
 }
 
-PUT analyzer-test-index/_doc/1
+PUT analyzer-test-index-01/_doc/1
 {
   "keyword" : "테스트"
 }
 
-POST analyzer-test-index/_analyze
+GET analyzer-test-index-01
+
+POST analyzer-test-index-01/_analyze
 {
   "tokenizer": "keyword",
-  "filter": ["jamo_filter"],
+  "filter": ["jamo_filter", "edge_ngram_filter"],
   "text" : "테스트"
 }
