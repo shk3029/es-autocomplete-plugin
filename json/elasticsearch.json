@@ -1,0 +1,113 @@
+PUT _template/analyzer-test-index-template
+{
+  "index_patterns": [
+      "analyzer-test-index*"
+    ],
+  "mappings": {
+    "properties": {
+      "keyword" : {
+        "type" : "text",
+        "fields": {
+          "jamo" : {
+            "analyzer" : "jamo_ngram_analyzer",
+            "search_analyzer" : "jamo_analyzer",
+            "type" : "text"
+          }
+        }
+      }
+    }
+  },
+  "settings": {
+    "index" : {
+      "analysis" : {
+        "char_filter" : {
+          "remove_special_char_filter" : {
+            "pattern" : "[^가-힣xfe0-9a-zA-Z\\s]",
+            "type" : "pattern_replace",
+            "replacemanet" : ""
+          }
+        },
+        "tokenizer" : {
+          "reverse_whitespace_path_tokenizer" : {
+            "reverse" : "true",
+            "type" : "path_hierarchy",
+            "delimiter" : " "
+          },
+          "korea_nori_tokenizer" : {
+            "type" : "nori_tokenizer",
+            "decompound_mode" : "discard",
+            "user_dictionary_rules" : [
+                "선결제"
+              ]
+          }
+        },
+        "filter" : {
+          "edge_ngram_filter" : {
+            "type": "edge_ngram",
+            "min_gram" : "1",
+            "max_gram" : "15"
+          },
+          "synonym_filter" : {
+            "type" : "synonym_graph",
+            "updateable" : "false",
+            "synonyms" : [
+              "가족, 패밀리"
+              ]
+          },
+          "nori_posfilter" : {
+            "type" : "nori_part_of_speech",
+            "stoptags" : [
+              "E","IC","J",
+              "MAG","NA","SC","SE","SF",
+              "SY","XSA","XSV","VCP"
+            ]
+          }
+        },
+        "analyzer" : {
+          "nori_anaylzer" : {
+            "filter" : [
+                "trim",
+                "lowercase",
+                "nori_readingform",
+                "synonym_filter",
+                "nori_posfilter"
+              ],
+            "type" : "custom",
+            "tokenizer" : "korea_nori_tokenizer"
+          },
+          "jamo_analyzer" : {
+            "filter" : [
+                "trim",
+                "lowercase",
+                "jamo_filter"
+              ],
+            "type" : "custom",
+            "tokenizer" : "keyword"            
+          },
+          "jamo_ngram_analyzer": {
+            "filter" : [
+                "trim",
+                "lowercase",
+                "jamo_filter",
+                "edge_ngram_filter"
+              ],
+            "type" : "custom",
+            "tokenizer" : "keyword"              
+          }
+        }
+      }
+    }
+  }
+}
+
+PUT analyzer-test-index/_doc/1
+{
+  "keyword" : "테스트"
+}
+
+POST analyzer-test-index/_analyze
+{
+  "tokenizer": "keyword",
+  "filter": ["jamo_filter"],
+  "text" : "테스트"
+}
