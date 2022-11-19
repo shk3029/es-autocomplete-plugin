@@ -3,6 +3,7 @@ package org.elasticsearch.plugin.analysis;
 import org.elasticsearch.index.analysis.TokenFilterFactory;
 import org.elasticsearch.index.analysis.chosung.JavacafeChosungTokenFilterFactory;
 import org.elasticsearch.index.analysis.jamo.JavacafeJamoTokenFilterFactory;
+import org.elasticsearch.index.analysis.jamongram.JamoNgramTokenFilterFactory;
 import org.elasticsearch.index.analysis.language.LanguageConvertFilterFactory;
 import org.elasticsearch.indices.analysis.AnalysisModule;
 import org.elasticsearch.plugins.AnalysisPlugin;
@@ -30,6 +31,9 @@ public class JavacafePlugin extends Plugin implements AnalysisPlugin {
 
         // (3) 영/한, 한/영 오타 변환 필터
         extra.put("language_filter", LanguageConvertFilterFactory::new);
+
+        // (4) 자모 + gram 필터
+        extra.put("jamo_ngram_filter", JamoNgramTokenFilterFactory::new);
 
         return extra;
     }
